@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Utility for querying and controlling a Netgear M1 router
-# Run ./netgear-m1.sh for usage
+# Utility for querying and controlling a Netgear M5 router
+# Run ./netgear-m5.sh for usage
 #
 
 trap "echo; exit_program" SIGINT SIGTERM
 
-IP=${NETGEAR_M1_IP:-"10.24.6.1"}
+IP=${NETGEAR_M5_IP:-"10.24.6.1"}
 
 URL_BASE="http://$IP"
 URL_JSON="${URL_BASE}/api/model.json"
@@ -35,13 +35,13 @@ function post {
 function print_usage {
   cat <<EOF
 Usage:
-  netgear-m1.sh status [--json]
-  netgear-m1.sh ping
-  netgear-m1.sh reboot
-  netgear-m1.sh connect
-  netgear-m1.sh disconnect
-  netgear-m1.sh reconnect
-  netgear-m1.sh -h | --help
+  netgear-m5.sh status [--json]
+  netgear-m5.sh ping
+  netgear-m5.sh reboot
+  netgear-m5.sh connect
+  netgear-m5.sh disconnect
+  netgear-m5.sh reconnect
+  netgear-m5.sh -h | --help
 
 Options:
   -h --help  Show usage screen.
@@ -54,9 +54,11 @@ Commands:
   connect    Turn cellular data connection on.
   disconnect Turn cellular data connection off.
   reconnect  Turn cellular data connection off and on again.
+  wifi_on    Turn Wifi ON.
+  wifi_off   Turn Wifi OFF.
 
-By default the utility connects router at IP address 192.168.1.1.
-Another IP address can be provided environment variable NETGEAR_M1_IP.
+By default the utility connects router at IP address 10.24.6.1
+Another IP address can be provided environment variable NETGEAR_M5_IP.
 EOF
 }
 
@@ -217,7 +219,7 @@ case "$1" in
       echo "$JSON"
     else
       echo "             Device name: $(get_from_json deviceName)"
-      echo "    Battery charge level: $(get_from_json battChargeLevel)"
+      echo "    Battery charge level: $(get_from_json batteryVoltage)"
       echo "              IP address: $(get_from_json IP)"
       echo "      Current radio band: $(get_from_json curBand)"
       echo "        Data transferred: $(get_from_json dataTransferred)"
