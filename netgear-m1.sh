@@ -6,7 +6,7 @@
 
 trap "echo; exit_program" SIGINT SIGTERM
 
-IP=${NETGEAR_M1_IP:-"192.168.1.1"}
+IP=${NETGEAR_M1_IP:-"10.24.6.1"}
 
 URL_BASE="http://$IP"
 URL_JSON="${URL_BASE}/api/model.json"
@@ -142,6 +142,23 @@ function connect {
   fi
 }
 
+function wifi_on {
+  if post wifi.enabled true "${URL_JSON_OK}" /success.json /error.json; then
+    echo Wifi Enabled
+  else
+    echo Failed to Enable Wifi
+    exit_program
+  fi
+}
+
+function wifi_off {
+  if post wifi.enabled false "${URL_JSON_OK}" /success.json /error.json; then
+    echo Wifi Disabled
+  else
+    echo Failed to Disable Wifi
+    exit_program
+  fi
+}
 function disconnect {
   if post wwan.autoconnect Never "${URL_JSON_OK}" /success.json /error.json; then
     echo Disconnected cellular data
@@ -179,7 +196,7 @@ case "$1" in
   status)
     start_session "$2"
     ;;
-  reboot | connect | disconnect | reconnect)
+  reboot | connect | disconnect | reconnect | wifi_on | wifi_off )
     read -r -s -p "Password: " PASSWORD
     if [ -t 0 ]; then echo; fi
     start_session
@@ -220,6 +237,14 @@ case "$1" in
   disconnect)
     login
     disconnect
+    ;;
+  wifi_on)
+    login
+    wifi_on
+    ;;
+  wifi_off)
+    login
+    wifi_off
     ;;
   reconnect)
     login
