@@ -128,7 +128,7 @@ Logged in to Nighthawk m5
 Disconnected cellular data
 ```
 
-![mobile data connection disconnected](https://raw.githubusercontent.com/mtreinik/netgear-m5/main/docs/disconnected.png)
+![mobile data connection disconnected](https://raw.githubusercontent.com/jacobhere/netgear-m5/main/docs/disconnected.png)
 
 ### connect
 
@@ -141,7 +141,7 @@ Logged in to Nighthawk m5
 Connected cellular data
 ```
 
-![mobile data connection connected](https://raw.githubusercontent.com/mtreinik/netgear-m5/main/docs/connected.png)
+![mobile data connection connected](https://raw.githubusercontent.com/jacobhere/netgear-m5/main/docs/connected.png)
 
 ### reconnect
 
