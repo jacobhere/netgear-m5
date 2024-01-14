@@ -6,7 +6,7 @@
 
 trap "echo; exit_program" SIGINT SIGTERM
 
-IP=${NETGEAR_M5_IP:-"10.24.6.1"}
+IP=${NETGEAR_M5_IP:-"10.24.4.1"}
 
 URL_BASE="http://$IP"
 URL_JSON="${URL_BASE}/api/model.json"
@@ -101,7 +101,7 @@ function reboot {
 }
 
 function no_ping {
-  if ping -c 1 -t 1 "$IP"; then
+  if ping -c 1 "$IP"; then
     sleep 1
     return 1
   else
@@ -130,7 +130,7 @@ function wait_for_router_down {
 }
 
 function wait_for_router_up {
-  wait_for_command "router network adapter" "ping -c 1 -t 2 $IP"
+  wait_for_command "router network adapter" "ping -c 1 $IP"
   wait_for_command "router services" "curl --silent --connect-timeout 1 ${URL_SESSION}"
   echo Router is up
 }
