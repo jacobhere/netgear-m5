@@ -6,7 +6,7 @@
 
 trap "echo; exit_program" SIGINT SIGTERM
 
-IP=${NETGEAR_M5_IP:-"10.24.4.1"}
+IP=${NETGEAR_M5_IP:-"10.24.6.1"}
 
 URL_BASE="http://$IP"
 URL_JSON="${URL_BASE}/api/model.json"
@@ -41,6 +41,7 @@ Usage:
   netgear-m5.sh connect
   netgear-m5.sh disconnect
   netgear-m5.sh reconnect
+  netgear-m5.sh wifi_status
   netgear-m5.sh -h | --help
 
 Options:
@@ -49,6 +50,7 @@ Options:
 
 Commands:
   status     Output router status. Default is brief human readable output.
+  wifi_status Return Wifi status. On of Off.
   ping       Ping router until it is available.
   reboot     Reboot router.
   connect    Turn cellular data connection on.
@@ -63,10 +65,6 @@ EOF
 }
 
 function start_session {
-  if [ "$1" != "--json" ]; then
-    echo -ne "Starting session...\r"
-  fi
-
   # start session and store it in cookie jar
   COOKIE_JAR=$(mktemp)
   curl --silent --output /dev/null --head --cookie-jar "${COOKIE_JAR}" "${URL_SESSION}"
@@ -78,9 +76,22 @@ function start_session {
 
 # prints a value specified by key $1 from JSON object
 function get_from_json {
-  echo "$JSON" | grep -o -e "$1\": *[^,]*," | head -1 | sed 's/.*: *//;s/^\"//;s/,$//;s/\"$//'
+  value=$(echo "$JSON" | jq -r ".${1}")
+  if [ "$value" == "null" ]; then
+    echo "N/A"
+  else
+    echo "$value"
+  fi
 }
-
+# prints the WiFi status from JSON object
+function get_wifi_status {
+  wifi_alert=$(echo "$JSON" | jq -r '.general.systemAlertList.list[]? | select(.description=="WiFi" and .active=="true")')
+  if [ -z "$wifi_alert" ]; then
+    echo 'On'
+  else
+    echo 'Off'
+  fi
+}
 function login {
   echo -ne "Logging in...     \r"
   if post session.password "${PASSWORD}" "${URL_LOGIN_OK}" /index.html /index.html?loginfailed; then
@@ -206,11 +217,15 @@ case "$1" in
   -h | --help)
     print_usage
     ;;
+  wifi_status)
+    start_session "$2"
+    ;;
   *)
     echo "Unknown command '$1'"
     print_usage
     exit 1
     ;;
+
 esac
 
 case "$1" in
@@ -218,12 +233,11 @@ case "$1" in
     if [ "$2" == "--json" ]; then
       echo "$JSON"
     else
-      echo "             Device name: $(get_from_json deviceName)"
-      echo "    Battery charge level: $(get_from_json batteryVoltage)"
-      echo "              IP address: $(get_from_json IP)"
-      echo "      Current radio band: $(get_from_json curBand)"
-      echo "        Data transferred: $(get_from_json dataTransferred)"
-      echo "Router connection status: $(get_from_json connection)"
+      echo "             Device name: $(get_from_json general.deviceName)"
+      echo "    Battery charge level: $(get_from_json power.battChargeLevel)"
+      echo "      Current radio band: $(get_from_json wwanadv.curBand)"
+      echo "Router connection status: $(get_from_json wwan.connection)"
+      echo "             WiFi status: $(get_wifi_status)"
     fi
     ;;
   reboot)
@@ -253,6 +267,8 @@ case "$1" in
     disconnect
     connect
     ;;
+  wifi_status)
+    echo $(get_wifi_status)
 esac
 
 exit_program
