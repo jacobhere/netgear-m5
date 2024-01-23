@@ -95,7 +95,7 @@ function get_wifi_status {
 function login {
   echo -ne "Logging in...     \r"
   if post session.password "${PASSWORD}" "${URL_LOGIN_OK}" /index.html /index.html?loginfailed; then
-    echo Logged in to "$(get_from_json deviceName)"
+    echo Logged in to "$(get_from_json general.deviceName)"
   else
     echo Failed to log in to router at IP address "$IP". Invalid password?
     exit_program
@@ -211,7 +211,7 @@ case "$1" in
     ;;
   reboot | connect | disconnect | reconnect | wifi_on | wifi_off )
     read -r -s -p "Password: " PASSWORD
-    if [ -t 0 ]; then echo; fi
+    # if [ -t 0 ]; then echo; fi
     start_session
     ;;
   -h | --help)
